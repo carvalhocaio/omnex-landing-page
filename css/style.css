@@ -186,6 +186,14 @@ section {
   transition: all var(--transition-base);
 }
 
+.nav__item--cta {
+  display: none;
+}
+
+.nav__cta-desktop {
+  display: inline-block;
+}
+
 /* ===================================
    Buttons
    =================================== */
@@ -729,6 +737,22 @@ section {
 
   .nav__mobile-toggle {
     display: flex;
+  }
+
+  .nav__cta-desktop {
+    display: none;
+  }
+
+  .nav__item--cta {
+    display: block;
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-gray-medium);
+  }
+
+  .nav__item--cta .btn {
+    width: 100%;
+    text-align: center;
   }
 
   .hero__title {
