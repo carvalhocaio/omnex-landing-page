@@ -57,6 +57,12 @@
   <!-- Preload critical assets -->
   <link rel="preload" href="images/omnex-white.jpeg" as="image">
 
+  <!-- Preconnect to external domains for faster loading -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
   <!-- Schema.org Structured Data (JSON-LD) -->
   <script type="application/ld+json">
   {
@@ -356,7 +362,7 @@
   <footer class="footer">
     <div class="container">
       <div class="footer__content">
-        <img src="images/omnex-logo-white-text.png" alt="Omnex Logo" class="footer__logo">
+        <img src="images/omnex-logo-white-text.png" alt="Omnex Logo" class="footer__logo" loading="lazy">
         <p>&copy; 2025 Omnex. Todos os direitos reservados.</p>
       </div>
       <div class="footer__bottom">

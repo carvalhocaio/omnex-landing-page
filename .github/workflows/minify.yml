@@ -1,0 +1,86 @@
+name: Minify CSS and JS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'css/**'
+      - 'js/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install -g csso-cli terser
+
+      - name: Backup original files
+        run: |
+          cp css/style.css css/style.original.css
+          cp js/main.js js/main.original.js
+
+      - name: Minify CSS
+        run: |
+          csso css/style.css -o css/style.min.css
+          echo "/* Original file size: $(wc -c < css/style.css) bytes */" > css/style.min.css.info
+          echo "/* Minified file size: $(wc -c < css/style.min.css) bytes */" >> css/style.min.css.info
+          cat css/style.min.css.info
+
+      - name: Minify JavaScript
+        run: |
+          terser js/main.js -o js/main.min.js --compress --mangle --comments false
+          echo "/* Original file size: $(wc -c < js/main.js) bytes */" > js/main.min.js.info
+          echo "/* Minified file size: $(wc -c < js/main.min.js) bytes */" >> js/main.min.js.info
+          cat js/main.min.js.info
+
+      - name: Check if minified files changed
+        id: check_changes
+        run: |
+          git add css/style.min.css js/main.min.js
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push minified files
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add css/style.min.css js/main.min.js
+          git commit -m "build: minify CSS and JS [skip ci]"
+          git push
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Minification Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### CSS" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat css/style.min.css.info >> $GITHUB_STEP_SUMMARY || echo "No CSS minification info" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### JavaScript" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat js/main.min.js.info >> $GITHUB_STEP_SUMMARY || echo "No JS minification info" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
