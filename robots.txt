@@ -1,0 +1,24 @@
+# robots.txt for Omnex MT
+# https://omnexmt.com.br/robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://omnexmt.com.br/sitemap.xml
+
+# Disallow non-public directories
+Disallow: /docs/
+Disallow: /.git/
+Disallow: /CLAUDE.md
+Disallow: /SETUP_EMAIL.md
+Disallow: /SETUP_ANALYTICS.md
+Disallow: /README.md
+
+# Allow CSS and JS for proper rendering
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Crawl delay (optional, adjust if needed)
+# Crawl-delay: 1
