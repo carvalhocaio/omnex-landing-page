@@ -7,6 +7,16 @@
   'use strict';
 
   // ===================================
+  // EmailJS Configuration
+  // ===================================
+  // Get them from: https://dashboard.emailjs.com/
+  const EMAILJS_CONFIG = {
+    serviceId: 'service_whj9hvl',      // e.g., 'service_abc123'
+    templateId: 'template_irfd2fc',    // e.g., 'template_xyz789'
+    publicKey: 'wHz_2PmRZNltQThkQ'       // e.g., 'abcdef123456'
+  };
+
+  // ===================================
   // Configuration
   // ===================================
   const CONFIG = {
@@ -142,14 +152,58 @@
       return;
     }
 
-    // Here you would typically send the data to a server
-    console.log('Form submitted:', data);
+    // Check if EmailJS is configured
+    if (EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID') {
+      console.warn('EmailJS not configured. Form data:', data);
+      showNotification('Configuração de email pendente. Por favor, tente novamente mais tarde.', 'error');
+      return;
+    }
 
-    // Show success message
-    showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+    // Get submit button and show loading state
+    const submitButton = elements.contactForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Enviando...';
+    submitButton.style.opacity = '0.7';
+    submitButton.style.cursor = 'not-allowed';
 
-    // Reset form
-    elements.contactForm.reset();
+    // Disable form inputs
+    const formInputs = elements.contactForm.querySelectorAll('input, textarea');
+    formInputs.forEach(input => input.disabled = true);
+
+    // Send email via EmailJS
+    emailjs.send(
+      EMAILJS_CONFIG.serviceId,
+      EMAILJS_CONFIG.templateId,
+      {
+        from_name: data.name,
+        from_email: data.email,
+        company: data.company || 'Não informado',
+        message: data.message,
+        to_email: 'comercial@omnexmt.com.br'
+      },
+      EMAILJS_CONFIG.publicKey
+    )
+    .then(() => {
+      // Success
+      showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+      elements.contactForm.reset();
+    })
+    .catch((error) => {
+      // Error
+      console.error('EmailJS error:', error);
+      showNotification('Erro ao enviar mensagem. Por favor, tente novamente ou entre em contato por telefone.', 'error');
+    })
+    .finally(() => {
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+      submitButton.style.opacity = '1';
+      submitButton.style.cursor = 'pointer';
+
+      // Re-enable form inputs
+      formInputs.forEach(input => input.disabled = false);
+    });
   }
 
   // ===================================
